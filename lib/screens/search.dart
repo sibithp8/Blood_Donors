@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class SearchPage extends StatefulWidget {
+  const SearchPage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<SearchPage> createState() => _SearchPageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  final CollectionReference donor = FirebaseFirestore.instance.collection(
-    'donor',
-  );
+class _SearchPageState extends State<SearchPage> {
+  final CollectionReference donor =
+  FirebaseFirestore.instance.collection('donor');
 
   String searchText = "";
-
 
   void deleteDonor(docId) {
     donor.doc(docId).delete();
@@ -61,21 +58,17 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          if (searchText.isEmpty)
           IconButton(
             onPressed: openSearchDialog,
-            icon: const Icon(Icons.search, color: Colors.white, size: 30),
-          )
-        else
-            IconButton(onPressed: (){
-              setState(() {
-                searchText= "";
-              });
-    }, icon: const Icon(Icons.arrow_back,
-    color:Colors.white,size: 30,),),
+            icon: const Icon(
+              Icons.search,
+              color: Colors.white,
+              size: 30,
+            ),
+          ),
         ],
         backgroundColor: Colors.red,
-        title: Text(
+        title: const Text(
           "Blood Donors",
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
@@ -85,20 +78,27 @@ class _HomePageState extends State<HomePage> {
           Navigator.pushNamed(context, '/add');
         },
         backgroundColor: Colors.white,
-        child: Icon(Icons.add, size: 40, color: Colors.red),
+        child: const Icon(
+          Icons.add,
+          size: 40,
+          color: Colors.red,
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterTop,
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/blood.jpg'),
             opacity: 0.5,
+            fit: BoxFit.cover,
           ),
         ),
         child: StreamBuilder(
           stream: (searchText.isEmpty)
               ? donor.orderBy('name').snapshots()
-              : donor.where('blood group', isEqualTo: searchText).snapshots(),
+              : donor
+              .where('blood group', isEqualTo: searchText)
+              .snapshots(),
           builder: (context, AsyncSnapshot snapshot) {
             if (snapshot.hasData) {
               return ListView.builder(
@@ -112,68 +112,64 @@ class _HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.circular(20),
                         color: Colors.white,
                         boxShadow: [
-                          BoxShadow(
+                          const BoxShadow(
                             color: Color.fromARGB(255, 194, 193, 193),
                             blurRadius: 10,
                             spreadRadius: 15,
-                          ),
+                          )
                         ],
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          // Avatar with Blood Group
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Container(
-                              child: CircleAvatar(
-                                backgroundColor: Colors.red,
-                                radius: 30,
-                                child: Text(
-                                  donorSnap['blood group'],
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    color: Colors.white,
-                                  ),
+                            child: CircleAvatar(
+                              backgroundColor: Colors.red,
+                              radius: 30,
+                              child: Text(
+                                donorSnap['blood group'],
+                                style: const TextStyle(
+                                  fontSize: 25,
+                                  color: Colors.white,
                                 ),
                               ),
                             ),
                           ),
+
+                          // Name + Phone
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 donorSnap['name'],
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: const TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               Text(
                                 donorSnap['mobile number'].toString(),
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: const TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
+
+                          // Edit + Delete
                           Row(
                             children: [
                               IconButton(
                                 onPressed: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    '/update',
-                                    arguments: {
-                                      'name': donorSnap['name'],
-                                      'mobile number':
-                                          donorSnap['mobile number'].toString(),
-                                      'blood group': donorSnap['blood group'],
-                                      'id': donorSnap.id,
-                                    },
-                                  );
+                                  Navigator.pushNamed(context, '/update',
+                                      arguments: {
+                                        'name': donorSnap['name'],
+                                        'mobile number': donorSnap['mobile number']
+                                            .toString(),
+                                        'blood group': donorSnap['blood group'],
+                                        'id': donorSnap.id,
+                                      });
                                 },
-                                icon: Icon(Icons.edit),
+                                icon: const Icon(Icons.edit),
                                 iconSize: 30,
                                 color: Colors.blueAccent,
                               ),
@@ -181,7 +177,7 @@ class _HomePageState extends State<HomePage> {
                                 onPressed: () {
                                   deleteDonor(donorSnap.id);
                                 },
-                                icon: Icon(Icons.delete),
+                                icon: const Icon(Icons.delete),
                                 iconSize: 30,
                                 color: Colors.red,
                               ),
@@ -195,7 +191,7 @@ class _HomePageState extends State<HomePage> {
                 itemCount: snapshot.data.docs.length,
               );
             }
-            return Container();
+            return const Center(child: CircularProgressIndicator());
           },
         ),
       ),
